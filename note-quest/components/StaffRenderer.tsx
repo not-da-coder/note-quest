@@ -1,6 +1,7 @@
 "use client";
 // components/StaffRenderer.tsx
-// Renders a musical staff with clef and a single note using VexFlow
+// Renders a musical staff + clef + single note using VexFlow.
+// Note is always centered horizontally, staff is taller for readability.
 
 import { useEffect, useRef } from "react";
 import type { NoteData } from "@/lib/game/notes";
@@ -16,48 +17,40 @@ export default function StaffRenderer({ note, width = 320, height = 160 }: Props
 
   useEffect(() => {
     if (!containerRef.current) return;
-
-    // Clear previous render
     containerRef.current.innerHTML = "";
 
-    // Dynamic import so VexFlow only runs in browser
     import("vexflow").then(({ Renderer, Stave, StaveNote, Voice, Formatter }) => {
       const container = containerRef.current!;
-
       const renderer = new Renderer(container, Renderer.Backends.SVG);
       renderer.resize(width, height);
 
       const ctx = renderer.getContext();
-      // Style the SVG context
       ctx.setFont("Arial", 10);
       ctx.setFillStyle("#0D0D0F");
       ctx.setStrokeStyle("#0D0D0F");
 
-      // Draw the stave
-      const staveX = 20;
-      const staveY = height / 2 - 35;
-      const staveWidth = width - 40;
+      // Stave is vertically centered with generous padding
+      const staveX = 15;
+      const staveY = height / 2 - 38;
+      const staveWidth = width - 30;
 
       const stave = new Stave(staveX, staveY, staveWidth);
       stave.addClef(note.clef);
       stave.setContext(ctx).draw();
 
-      // Create the note
       const staveNote = new StaveNote({
         keys: [note.vexKey],
         duration: "q",
         clef: note.clef,
       });
 
-      // Style the note head to use our ink color
       staveNote.setStyle({ fillStyle: "#0D0D0F", strokeStyle: "#0D0D0F" });
 
-      // Create a voice with the note
       const voice = new Voice({ num_beats: 1, beat_value: 4 });
       voice.addTickable(staveNote);
 
-      // Format and draw
-      new Formatter().joinVoices([voice]).format([voice], staveWidth - 80);
+      // Center the note by formatting within a narrow region in the middle of the stave
+      new Formatter().joinVoices([voice]).format([voice], staveWidth - 90);
       voice.draw(ctx, stave);
     });
   }, [note, width, height]);

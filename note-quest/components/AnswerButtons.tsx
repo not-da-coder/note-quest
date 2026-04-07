@@ -1,64 +1,59 @@
 "use client";
 // components/AnswerButtons.tsx
-// Four answer buttons with correct/wrong visual feedback
-
-import { NoteData } from "@/lib/game/notes";
+// Fixed-order answer buttons: always shown in NOTE_SEQUENCE (C D E F G A B) subset.
+// Correct/wrong states animate on feedback.
 
 interface Props {
-  answers: NoteData[];
-  correctIndex: number;
-  selected: number | null;
-  onSelect: (index: number) => void;
+  answers: string[];        // ordered subset of NOTE_SEQUENCE, e.g. ["E","F","G"]
+  correctName: string;      // the correct note letter
+  selected: string | null;  // which the user picked (null = not yet)
+  onSelect: (name: string) => void;
   disabled: boolean;
 }
 
-export default function AnswerButtons({
-  answers,
-  correctIndex,
-  selected,
-  onSelect,
-  disabled,
-}: Props) {
+export default function AnswerButtons({ answers, correctName, selected, onSelect, disabled }: Props) {
+  // Choose grid columns based on count for best layout
+  const cols =
+    answers.length <= 3 ? "grid-cols-3" :
+    answers.length === 4 ? "grid-cols-4" :
+    answers.length <= 6 ? "grid-cols-3" :
+    "grid-cols-4";          // 7 notes: 4+3 layout
+
   return (
-    <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
-      {answers.map((answer, i) => {
-        const isCorrect = i === correctIndex;
-        const isSelected = i === selected;
+    <div className={`grid ${cols} gap-2.5 w-full max-w-sm mx-auto`}>
+      {answers.map((name) => {
+        const isCorrect = name === correctName;
+        const isSelected = name === selected;
         const showResult = selected !== null;
 
         let style =
-          "relative font-display text-2xl font-bold py-5 px-4 rounded-2xl border-2 transition-all duration-200 select-none ";
+          "relative font-display text-2xl font-bold py-4 px-2 rounded-2xl border-2 " +
+          "transition-all duration-200 select-none text-center ";
 
         if (!showResult) {
-          // Idle state
-          style +=
-            "bg-parchment border-mist text-ink hover:border-violet hover:bg-violet/10 hover:scale-105 active:scale-95 cursor-pointer";
+          style += "bg-parchment border-mist text-ink hover:border-violet hover:bg-violet/10 " +
+                   "hover:scale-105 active:scale-95 cursor-pointer shadow-sm hover:shadow-md";
         } else if (isCorrect) {
-          // Always highlight correct answer
-          style +=
-            "bg-sage/20 border-sage text-sage scale-105 animate-pop";
+          style += "bg-green-400/20 border-green-400 text-green-600 scale-105 animate-pop shadow-md shadow-green-400/20";
         } else if (isSelected && !isCorrect) {
-          // Wrong selection
-          style +=
-            "bg-coral/20 border-coral text-coral animate-shake";
+          style += "bg-coral/20 border-coral text-coral animate-shake";
         } else {
-          // Dimmed non-selected
-          style += "bg-mist/40 border-mist/40 text-ink/30";
+          style += "bg-mist/40 border-mist/30 text-ink/20";
         }
 
         return (
           <button
-            key={i}
-            onClick={() => !disabled && onSelect(i)}
+            key={name}
+            onClick={() => !disabled && onSelect(name)}
             className={style}
             disabled={disabled}
-            aria-label={`Answer ${answer.name}`}
+            aria-label={`Answer ${name}`}
           >
-            {/* Ripple ring for correct */}
+            {/* Pulse ring for correct */}
             {showResult && isCorrect && (
-              <span className="absolute inset-0 rounded-2xl ring-2 ring-sage animate-pulse-ring pointer-events-none" />
+              <span className="absolute inset-0 rounded-2xl ring-2 ring-green-400 animate-pulse-ring pointer-events-none" />
             )}
-            {answer.name}
+            {name}
           </button>
         );
       })}
