@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { loadProgress } from "@/lib/game/progress";
+import { TOTAL_LEVELS } from "@/lib/game/levels";
 
 export default function HomePage() {
   const [xp, setXp] = useState(0);
@@ -94,14 +95,14 @@ export default function HomePage() {
               </p>
               <h2 className="font-display font-black text-3xl">Adventure</h2>
               <p className="mt-2 text-sm font-body text-white/70 max-w-[200px]">
-                6 worlds · 30 levels · Spaced repetition
+                9 worlds · {TOTAL_LEVELS} levels · Spaced repetition
               </p>
             </div>
             <span className="text-5xl group-hover:scale-110 transition-transform">🗺️</span>
           </div>
           {levels > 0 && (
             <div className="mt-4 inline-block bg-white/10 rounded-xl px-3 py-1.5">
-              <span className="text-xs font-body text-white/50">{levels}/30 levels complete</span>
+              <span className="text-xs font-body text-white/50">{levels}/{TOTAL_LEVELS} levels complete</span>
             </div>
           )}
         </Link>

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import AdventureMap from "@/components/AdventureMap";
 import { loadProgress, PlayerProgress, resetProgress } from "@/lib/game/progress";
+import { TOTAL_LEVELS } from "@/lib/game/levels";
 
 export default function AdventurePage() {
   const [progress, setProgress] = useState<PlayerProgress | null>(null);
@@ -39,7 +40,7 @@ export default function AdventurePage() {
         </Link>
         <div className="text-center">
           <h1 className="font-display font-bold text-base text-ink">Adventure Map</h1>
-          <p className="text-xs font-body text-ink/40">{completedCount}/30 levels</p>
+          <p className="text-xs font-body text-ink/40">{completedCount}/{TOTAL_LEVELS} levels · 9 worlds</p>
         </div>
         <button
           onClick={() => setShowReset(!showReset)}

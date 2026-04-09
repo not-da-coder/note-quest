@@ -10,9 +10,10 @@ interface Props {
   levelId?: number;
   passed?: boolean;
   onReplay?: () => void;
+  totalLevels?: number;
 }
 
-export default function ResultsCard({ score, mode, levelId, passed, onReplay }: Props) {
+export default function ResultsCard({ score, mode, levelId, passed, onReplay, totalLevels }: Props) {
   const acc = Math.round(accuracy(score) * 100);
 
   const grade =
@@ -112,7 +113,7 @@ export default function ResultsCard({ score, mode, levelId, passed, onReplay }: 
         )}
 
         {/* Next level button — show if adventure + passed + not final level */}
-        {mode === "adventure" && passed && levelId && levelId < 30 && (
+        {mode === "adventure" && passed && levelId && levelId < (totalLevels ?? 35) && (
           <Link
             href={`/adventure/${levelId + 1}`}
             className="flex-1 py-3.5 rounded-2xl bg-sage text-white font-body font-bold text-sm text-center

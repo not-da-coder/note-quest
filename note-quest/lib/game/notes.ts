@@ -47,10 +47,28 @@ export const ALL_NOTES: NoteData[] = [
 export const TREBLE_NOTES = ALL_NOTES.filter((n) => n.clef === "treble");
 export const BASS_NOTES   = ALL_NOTES.filter((n) => n.clef === "bass");
 
-// Returns the pool of NoteData objects that can appear on the staff for a given world.
-// The answerPool (letter names shown as buttons) is controlled separately in levels.ts.
+// Convenience pools for mixed levels
+export const TREBLE_SPACES = ALL_NOTES.filter((n) => n.clef === "treble" && n.world === 1);
+export const TREBLE_LINES  = ALL_NOTES.filter((n) => n.clef === "treble" && n.world === 2);
+export const BASS_SPACES   = ALL_NOTES.filter((n) => n.clef === "bass"   && n.world === 4);
+export const BASS_LINES    = ALL_NOTES.filter((n) => n.clef === "bass"   && n.world === 5);
+
+// Returns the pool of NoteData objects that can appear on the staff.
+// notesWorld values:
+//  1 = treble spaces    2 = treble lines     3 = all treble
+//  4 = bass spaces      5 = bass lines       6 = all notes
+//  7 = treble+bass spaces   8 = treble+bass lines   9 = all notes (alias of 6)
 export function getNotesForWorld(world: number): NoteData[] {
-  if (world === 3) return TREBLE_NOTES;
-  if (world === 6) return ALL_NOTES;
-  return ALL_NOTES.filter((n) => n.world === world);
+  switch (world) {
+    case 1:  return TREBLE_SPACES;
+    case 2:  return TREBLE_LINES;
+    case 3:  return TREBLE_NOTES;
+    case 4:  return BASS_SPACES;
+    case 5:  return BASS_LINES;
+    case 7:  return [...TREBLE_SPACES, ...BASS_SPACES];
+    case 8:  return [...TREBLE_LINES,  ...BASS_LINES];
+    case 6:
+    case 9:
+    default: return ALL_NOTES;
+  }
 }

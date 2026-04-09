@@ -1,7 +1,7 @@
 "use client";
 // components/MnemonicOverlay.tsx
-// Fades in a visual mnemonic label strip when user answers incorrectly.
-// Shows note letters positioned to mirror their location on the staff.
+// Shown when user answers wrong — displays note positions on a visual staff diagram
+// with the target note highlighted, plus the mnemonic phrase.
 
 import { useEffect, useState } from "react";
 import { NoteData } from "@/lib/game/notes";
@@ -19,7 +19,6 @@ export default function MnemonicOverlay({ note, visible }: Props) {
     if (visible) {
       setShow(true);
     } else {
-      // Small delay so it fades on exit
       const t = setTimeout(() => setShow(false), 300);
       return () => clearTimeout(t);
     }
@@ -27,56 +26,52 @@ export default function MnemonicOverlay({ note, visible }: Props) {
 
   if (!show) return null;
 
+  // Look up by the note's original world (1-5) — that's where staffLabels live
   const world = WORLDS.find((w) => w.id === note.world);
-  if (!world || world.staffLabels.length === 0) return null;
+  if (!world || world.staffLabels.length === 0) {
+    // Fallback for mixed-world notes: just show name + hint
+    return (
+      <div className={`w-full rounded-2xl border border-violet/20 bg-violet/5 px-4 py-3 text-center
+        transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}>
+        <p className="text-sm font-body text-ink/60">
+          The note is <span className="font-display font-bold text-violet text-lg">{note.name}</span>
+          {" "}on the <span className="font-semibold">{note.clef}</span> clef.
+        </p>
+        <p className="text-xs font-body text-ink/40 mt-1">{note.positionHint}</p>
+      </div>
+    );
+  }
 
-  // staffLabels are ordered bottom→top, which is how staff positions work
-  // We render them top→bottom visually (reverse) so bottom=lowest staff position
+  // Render labels top→bottom (reversed from bottom→top staff order)
   const labels = [...world.staffLabels].reverse();
 
   return (
-    <div
-      className={`
-        w-full rounded-2xl border border-violet/20 bg-violet/5 px-4 py-3
-        transition-opacity duration-300
-        ${visible ? "opacity-100" : "opacity-0"}
-      `}
-    >
+    <div className={`w-full rounded-2xl border border-violet/20 bg-violet/5 px-4 py-3
+      transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}>
+
       <p className="text-[10px] font-body text-ink/40 uppercase tracking-widest text-center mb-2">
         {world.mnemonicTitle}
       </p>
 
-      {/* Staff diagram with note labels */}
-      <div className="relative flex flex-col gap-0 mb-2">
+      {/* Visual staff diagram */}
+      <div className="flex flex-col gap-0 mb-2.5">
         {labels.map(({ note: n, position }, i) => {
           const isTarget = n === note.name;
-          // Alternating rows represent staff lines/spaces
-          const isLine = world.clef === "treble"
-            ? (world.id === 1 ? false : true) // world 1 = spaces, world 2 = lines
-            : (world.id === 4 ? false : true);
-
           return (
-            <div
-              key={`${n}-${i}`}
-              className="relative flex items-center gap-3 py-0.5"
-            >
-              {/* Staff line or space indicator */}
-              <div className={`w-24 h-px ${isLine ? "bg-ink/20" : "bg-transparent"}`} />
-
-              {/* Note name badge */}
-              <div className={`
-                flex items-center justify-center w-7 h-7 rounded-full text-sm font-display font-bold
-                transition-all duration-200
+            <div key={`${n}-${i}`} className="flex items-center gap-3 py-0.5">
+              {/* Staff line indicator */}
+              <div className="w-20 h-px bg-ink/15 flex-shrink-0" />
+              {/* Note badge */}
+              <div className={`flex items-center justify-center w-7 h-7 rounded-full text-sm
+                font-display font-bold transition-all duration-200 flex-shrink-0
                 ${isTarget
-                  ? "bg-violet text-white scale-110 shadow-lg shadow-violet/30"
-                  : "bg-mist text-ink/40"
-                }
-              `}>
+                  ? "bg-violet text-white scale-110 shadow-md shadow-violet/30"
+                  : "bg-mist text-ink/35"}`}>
                 {n}
               </div>
-
               {/* Position label */}
-              <span className={`text-xs font-body ${isTarget ? "text-violet font-semibold" : "text-ink/30"}`}>
+              <span className={`text-xs font-body leading-tight
+                ${isTarget ? "text-violet font-semibold" : "text-ink/30"}`}>
                 {position}
               </span>
             </div>
@@ -85,7 +80,7 @@ export default function MnemonicOverlay({ note, visible }: Props) {
       </div>
 
       {/* Mnemonic phrase */}
-      <div className="text-center">
+      <div className="text-center border-t border-violet/10 pt-2.5">
         <span className="text-xs font-body text-ink/40 mr-1">Remember:</span>
         <span className="font-display font-bold text-sm text-violet">{world.mnemonic}</span>
       </div>

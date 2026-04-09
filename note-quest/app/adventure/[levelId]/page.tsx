@@ -7,7 +7,7 @@ import { useParams } from "next/navigation";
 import GameEngine, { GameResult } from "@/components/GameEngine";
 import ResultsCard from "@/components/ResultsCard";
 import ProgressBar from "@/components/ProgressBar";
-import { getLevelById, WORLDS } from "@/lib/game/levels";
+import { getLevelById, WORLDS, TOTAL_LEVELS, getWorldLevels } from "@/lib/game/levels";
 import { generateQuestions, accuracy } from "@/lib/game/questionEngine";
 import { loadProgress, saveProgress, updateLevelScore, isLevelUnlocked } from "@/lib/game/progress";
 import type { Question, NoteMemory } from "@/lib/game/questionEngine";
@@ -33,10 +33,10 @@ export default function LevelPage() {
     const p = loadProgress();
     setMemory(p.noteMemory);
     setUnlocked(isLevelUnlocked(levelId, p));
-    // Calculate world completion progress
-    const worldLevelIds = Array.from({ length: 5 }, (_, i) => (world.id - 1) * 5 + i + 1);
-    const passed = worldLevelIds.filter((id) => p.completedLevels.includes(id)).length;
-    setWorldProgress(passed / 5);
+    // Calculate world completion progress using actual levels in this world
+    const worldLevels = getWorldLevels(world.id);
+    const passed = worldLevels.filter((l) => p.completedLevels.includes(l.id)).length;
+    setWorldProgress(worldLevels.length > 0 ? passed / worldLevels.length : 0);
   }, [levelId, level, world]);
 
   const startGame = useCallback(() => {
@@ -175,7 +175,7 @@ export default function LevelPage() {
         <div className="w-10" />
       </div>
       {result && (
-        <ResultsCard score={result.score} mode="adventure" levelId={levelId} passed={passed} onReplay={startGame} />
+        <ResultsCard score={result.score} mode="adventure" levelId={levelId} passed={passed} onReplay={startGame} totalLevels={TOTAL_LEVELS} />
       )}
     </div>
   );
