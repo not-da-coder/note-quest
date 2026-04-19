@@ -1,10 +1,11 @@
 "use client";
 // components/GameEngine.tsx
-// Core game loop — updated for fixed-order answers, piano reference, mnemonic overlay
+// Core game loop — supports both button and piano keyboard answer modes
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import StaffRenderer from "./StaffRenderer";
 import AnswerButtons from "./AnswerButtons";
+import PianoAnswerKeys from "./PianoAnswerKeys";
 import TimerBar from "./TimerBar";
 import MnemonicOverlay from "./MnemonicOverlay";
 import ScoreBar from "./ScoreBar";
@@ -29,11 +30,12 @@ interface Props {
   timerSeconds?: number;
   memory: NoteMemory;
   onComplete: (result: GameResult) => void;
+  usePiano?: boolean; // use piano keyboard instead of letter buttons
 }
 
 type Phase = "question" | "feedback";
 
-export default function GameEngine({ questions, timerSeconds, memory, onComplete }: Props) {
+export default function GameEngine({ questions, timerSeconds, memory, onComplete, usePiano = false }: Props) {
   const [qIndex, setQIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("question");
   const [selected, setSelected] = useState<string | null>(null);
@@ -57,7 +59,6 @@ export default function GameEngine({ questions, timerSeconds, memory, onComplete
     setStaffPulse(false);
   }, [qIndex]);
 
-  // Cleanup on unmount
   useEffect(() => () => {
     if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
   }, []);
@@ -98,7 +99,6 @@ export default function GameEngine({ questions, timerSeconds, memory, onComplete
     setCurrentMemory(nextMemory);
     setPhase("feedback");
 
-    // Visual feedback
     if (correct) {
       setStaffPulse(true);
       setComboEarned(streakBonus > 0);
@@ -107,7 +107,6 @@ export default function GameEngine({ questions, timerSeconds, memory, onComplete
       setComboEarned(false);
     }
 
-    // Points popup
     if (earned > 0) {
       let msg = `+${base}`;
       if (speedBonus) msg += ` ⚡+${speedBonus}`;
@@ -137,32 +136,23 @@ export default function GameEngine({ questions, timerSeconds, memory, onComplete
   }, [phase, score, currentMemory, qIndex, q, advance]);
 
   const isWrong = phase === "feedback" && selected !== q.correctName;
-  const showPiano = phase === "feedback";
+  const showPiano = phase === "feedback" && !usePiano; // don't show reference if already using piano
 
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto px-4">
-      {/* Score + streak row */}
-      <div className="flex items-center justify-between w-full">
-        <ScoreBar
-          score={score.total}
-          streak={score.streak}
-          questionIndex={qIndex}
-          totalQuestions={questions.length}
-        />
-      </div>
+      <ScoreBar score={score.total} streak={score.streak} questionIndex={qIndex} totalQuestions={questions.length} />
 
-      {/* Streak indicator */}
       <div className="flex justify-center w-full -mt-1">
         <StreakIndicator streak={score.streak} comboEarned={comboEarned} />
       </div>
 
-      {/* Timer */}
       {timerSeconds && (
         <TimerBar
           durationSeconds={timerSeconds}
           onExpire={handleTimerExpire}
           running={phase === "question"}
           resetKey={timerKey}
+          showCountdown={true}
         />
       )}
 
@@ -173,18 +163,12 @@ export default function GameEngine({ questions, timerSeconds, memory, onComplete
         ${staffPulse && phase === "feedback" ? "border-green-400 shadow-green-400/20" : "border-mist"}
         ${staffShake ? "animate-shake" : ""}
       `}>
-        {/* Subtle ruled paper lines */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
           style={{ backgroundImage: "repeating-linear-gradient(0deg,#0D0D0F 0px,transparent 1px,transparent 10px)" }} />
-
         <StaffRenderer note={q.note} width={300} height={160} />
-
-        {/* Correct answer glow overlay */}
         {staffPulse && phase === "feedback" && (
           <div className="absolute inset-0 rounded-3xl bg-green-400/10 pointer-events-none" />
         )}
-
-        {/* Points popup */}
         {pointsPopup && (
           <div className="absolute top-2 right-3 animate-bounce-in font-display font-bold text-green-500 text-sm pointer-events-none">
             {pointsPopup}
@@ -192,31 +176,35 @@ export default function GameEngine({ questions, timerSeconds, memory, onComplete
         )}
       </div>
 
-      {/* Clef label */}
       <p className="text-xs font-body text-ink/40 uppercase tracking-widest -mt-1">
         {q.note.clef} clef · what note is this?
       </p>
 
-      {/* Answer buttons — fixed order */}
-      <AnswerButtons
-        answers={q.answers}
-        correctName={q.correctName}
-        selected={selected}
-        onSelect={handleAnswer}
-        disabled={phase !== "question"}
-      />
+      {/* Answer input — piano or buttons */}
+      {usePiano ? (
+        <PianoAnswerKeys
+          answers={q.answers}
+          correctName={q.correctName}
+          selected={selected}
+          onSelect={handleAnswer}
+          disabled={phase !== "question"}
+        />
+      ) : (
+        <AnswerButtons
+          answers={q.answers}
+          correctName={q.correctName}
+          selected={selected}
+          onSelect={handleAnswer}
+          disabled={phase !== "question"}
+        />
+      )}
 
-      {/* Piano reference — shown after answer */}
       {showPiano && (
         <div className="w-full animate-slide-up">
-          <PianoReference
-            highlightNote={q.correctName}
-            isCorrect={!isWrong}
-          />
+          <PianoReference highlightNote={q.correctName} isCorrect={!isWrong} />
         </div>
       )}
 
-      {/* Mnemonic overlay — shown on wrong answer */}
       <MnemonicOverlay note={q.note} visible={isWrong} />
     </div>
   );
