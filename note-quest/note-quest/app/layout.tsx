@@ -1,0 +1,29 @@
+// app/layout.tsx
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: "NoteQuest — Learn to Read Music",
+  description: "A Duolingo-style game for learning musical notes on the staff",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="bg-parchment text-ink font-body min-h-screen antialiased">
+        <main className="max-w-md mx-auto min-h-screen flex flex-col">
+          {children}
+        </main>
+      </body>
+    </html>
+  );
+}

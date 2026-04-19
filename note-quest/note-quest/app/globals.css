@@ -1,0 +1,35 @@
+/* app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #FAF7F2;
+    color: #0D0D0F;
+  }
+
+  /* VexFlow SVG styling — ensure ink color on all rendered elements */
+  .staff-renderer svg {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible;
+  }
+
+  .staff-renderer svg path,
+  .staff-renderer svg rect,
+  .staff-renderer svg circle {
+    fill: #0D0D0F;
+    stroke: #0D0D0F;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
