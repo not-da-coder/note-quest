@@ -1,6 +1,5 @@
 "use client";
-// components/TimerBar.tsx
-// Animated countdown bar for Quick Fire mode
+// components/TimerBar.tsx — countdown bar + large visible seconds number
 
 import { useEffect, useRef, useState } from "react";
 
@@ -8,20 +7,23 @@ interface Props {
   durationSeconds: number;
   onExpire: () => void;
   running: boolean;
-  resetKey: number; // increment to reset
+  resetKey: number;
+  showCountdown?: boolean; // show large number (Quick Fire mode)
 }
 
-export default function TimerBar({ durationSeconds, onExpire, running, resetKey }: Props) {
+export default function TimerBar({ durationSeconds, onExpire, running, resetKey, showCountdown }: Props) {
   const [width, setWidth] = useState(100);
+  const [secondsLeft, setSecondsLeft] = useState(durationSeconds);
   const startRef = useRef<number | null>(null);
   const frameRef = useRef<number>(0);
   const expiredRef = useRef(false);
 
   useEffect(() => {
     setWidth(100);
+    setSecondsLeft(durationSeconds);
     startRef.current = null;
     expiredRef.current = false;
-  }, [resetKey]);
+  }, [resetKey, durationSeconds]);
 
   useEffect(() => {
     if (!running) return;
@@ -30,7 +32,9 @@ export default function TimerBar({ durationSeconds, onExpire, running, resetKey 
       if (!startRef.current) startRef.current = now;
       const elapsed = (now - startRef.current) / 1000;
       const pct = Math.max(0, 100 - (elapsed / durationSeconds) * 100);
+      const secs = Math.ceil(Math.max(0, durationSeconds - elapsed));
       setWidth(pct);
+      setSecondsLeft(secs);
 
       if (pct <= 0 && !expiredRef.current) {
         expiredRef.current = true;
@@ -44,16 +48,28 @@ export default function TimerBar({ durationSeconds, onExpire, running, resetKey 
     return () => cancelAnimationFrame(frameRef.current);
   }, [running, durationSeconds, onExpire, resetKey]);
 
-  // Color shifts: green → yellow → red
-  const color =
-    width > 60 ? "bg-sage" : width > 30 ? "bg-gold" : "bg-coral";
+  const isUrgent = width <= 40;
+  const barColor = width > 60 ? "bg-sage" : width > 30 ? "bg-gold" : "bg-coral";
 
   return (
-    <div className="w-full h-2.5 bg-mist rounded-full overflow-hidden">
-      <div
-        className={`h-full rounded-full transition-colors duration-300 ${color}`}
-        style={{ width: `${width}%`, transition: "width 0.05s linear" }}
-      />
+    <div className="w-full space-y-1">
+      {showCountdown && (
+        <div className="flex items-center justify-between px-0.5">
+          <span className="text-[10px] font-body text-ink/30 uppercase tracking-widest">Time</span>
+          <span className={`font-display font-black text-2xl leading-none transition-colors duration-200
+            ${secondsLeft <= 2 ? "text-coral animate-timer-pulse" :
+              secondsLeft <= 3 ? "text-gold" : "text-ink/60"}`}>
+            {secondsLeft}
+          </span>
+        </div>
+      )}
+      <div className="w-full h-3 bg-mist rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-colors duration-300 ${barColor}
+            ${isUrgent ? "animate-timer-pulse" : ""}`}
+          style={{ width: `${width}%`, transition: "width 0.05s linear" }}
+        />
+      </div>
     </div>
   );
 }
