@@ -31,6 +31,11 @@ const config: Config = {
         "shake": "shake 0.35s ease-in-out",
         "pop": "pop 0.25s ease-out",
         "fade-in": "fadeIn 0.3s ease-out",
+        // Streak flame animations
+        "flame-flicker": "flameFlicker 0.8s ease-in-out infinite alternate",
+        "flame-burst": "flameBurst 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+        // Timer pulse when low
+        "timer-pulse": "timerPulse 0.5s ease-in-out infinite",
       },
       keyframes: {
         bounceIn: {
@@ -60,6 +65,19 @@ const config: Config = {
         fadeIn: {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },
+        },
+        flameFlicker: {
+          "0%": { transform: "scaleY(1) scaleX(1)", filter: "brightness(1)" },
+          "100%": { transform: "scaleY(1.08) scaleX(0.95)", filter: "brightness(1.2)" },
+        },
+        flameBurst: {
+          "0%": { transform: "scale(0.5)", opacity: "0" },
+          "60%": { transform: "scale(1.3)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        timerPulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.5" },
         },
       },
     },

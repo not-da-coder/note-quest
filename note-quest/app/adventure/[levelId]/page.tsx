@@ -24,6 +24,7 @@ export default function LevelPage() {
   const [result, setResult] = useState<GameResult | null>(null);
   const [unlocked, setUnlocked] = useState(true);
   const [worldProgress, setWorldProgress] = useState(0);
+  const [usePiano, setUsePiano] = useState(false);
 
   const level = getLevelById(levelId);
   const world = level ? WORLDS.find((w) => w.id === level.world) : null;
@@ -131,10 +132,23 @@ export default function LevelPage() {
         </div>
 
         <div className="flex flex-col gap-3 w-full">
+          {/* Piano toggle */}
+          <div className="flex gap-2">
+            <button onClick={() => setUsePiano(false)}
+              className={`flex-1 py-2.5 rounded-xl font-body font-bold text-sm transition-all duration-150
+                ${!usePiano ? "bg-violet text-white shadow-md shadow-violet/30" : "bg-mist text-ink/50"}`}>
+              🔤 Buttons
+            </button>
+            <button onClick={() => setUsePiano(true)}
+              className={`flex-1 py-2.5 rounded-xl font-body font-bold text-sm transition-all duration-150
+                ${usePiano ? "bg-violet text-white shadow-md shadow-violet/30" : "bg-mist text-ink/50"}`}>
+              🎹 Piano
+            </button>
+          </div>
           <button onClick={startGame}
             className="w-full py-4 rounded-2xl bg-ink text-parchment font-body font-bold text-lg
               hover:bg-ink/90 active:scale-95 transition-all shadow-xl shadow-ink/20 hover:shadow-2xl">
-            Start Level
+            Start Level →
           </button>
           <Link href="/adventure"
             className="text-center text-sm font-body text-ink/40 hover:text-ink/60 transition-colors py-2">
@@ -158,7 +172,7 @@ export default function LevelPage() {
           </span>
           <div className="w-10" />
         </div>
-        <GameEngine questions={questions} memory={memory} onComplete={handleComplete} />
+        <GameEngine questions={questions} memory={memory} onComplete={handleComplete} usePiano={usePiano} />
       </div>
     );
   }

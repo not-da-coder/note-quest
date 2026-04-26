@@ -125,30 +125,30 @@ export const WORLDS: WorldDef[] = [
 export const LEVELS: LevelDef[] = [
 
   // ── World 1: Treble Spaces ──────────────────────────────────────────────────
-  // Introduce F, A, C, E one at a time then combine
+  // answerPool ONLY contains notes being taught — no untaught neighbours
   {
     id: 1, world: 1, levelInWorld: 1,
     title: "Level 1", description: "Just one note: F — the lowest space",
     questionCount: 5, passingAccuracy: 0.8, notesWorld: 1,
-    answerPool: ["E", "F", "G"],                    // narrow: F with close neighbours
+    answerPool: ["F"],                              // single note: confirm F
   },
   {
     id: 2, world: 1, levelInWorld: 2,
-    title: "Level 2", description: "Add A — second space up",
+    title: "Level 2", description: "Add A — F or A?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 1,
-    answerPool: ["E", "F", "G", "A"],
+    answerPool: ["F", "A"],
   },
   {
     id: 3, world: 1, levelInWorld: 3,
-    title: "Level 3", description: "Add C — third space",
+    title: "Level 3", description: "Add C — F, A or C?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 1,
-    answerPool: FACE,                               // C E F A in order
+    answerPool: ["C", "F", "A"],
   },
   {
     id: 4, world: 1, levelInWorld: 4,
-    title: "Level 4", description: "Add E — top space: FACE complete!",
+    title: "Level 4", description: "Add E — now spell FACE!",
     questionCount: 8, passingAccuracy: 0.8, notesWorld: 1,
-    answerPool: FACE,
+    answerPool: FACE,                               // C E F A
   },
   {
     id: 5, world: 1, levelInWorld: 5,
@@ -162,25 +162,25 @@ export const LEVELS: LevelDef[] = [
     id: 6, world: 2, levelInWorld: 1,
     title: "Level 1", description: "Just E — the bottom line",
     questionCount: 5, passingAccuracy: 0.8, notesWorld: 2,
-    answerPool: ["D", "E", "F"],
+    answerPool: ["E"],
   },
   {
     id: 7, world: 2, levelInWorld: 2,
-    title: "Level 2", description: "Add G — second line",
+    title: "Level 2", description: "Add G — E or G?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 2,
-    answerPool: ["D", "E", "F", "G"],
+    answerPool: ["E", "G"],
   },
   {
     id: 8, world: 2, levelInWorld: 3,
     title: "Level 3", description: "Add B — middle line",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 2,
-    answerPool: ["B", "D", "E", "F", "G"],
+    answerPool: ["B", "E", "G"],
   },
   {
     id: 9, world: 2, levelInWorld: 4,
-    title: "Level 4", description: "Add D — fourth line",
+    title: "Level 4", description: "Add D — almost there!",
     questionCount: 8, passingAccuracy: 0.8, notesWorld: 2,
-    answerPool: EGBDF,
+    answerPool: ["B", "D", "E", "G"],
   },
   {
     id: 10, world: 2, levelInWorld: 5,
@@ -214,19 +214,19 @@ export const LEVELS: LevelDef[] = [
     id: 14, world: 4, levelInWorld: 1,
     title: "Level 1", description: "Just A — bass bottom space",
     questionCount: 5, passingAccuracy: 0.8, notesWorld: 4,
-    answerPool: ["A", "B", "C"],
+    answerPool: ["A"],
   },
   {
     id: 15, world: 4, levelInWorld: 2,
-    title: "Level 2", description: "Add C — second bass space",
+    title: "Level 2", description: "Add C — A or C?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 4,
-    answerPool: ["A", "B", "C", "D"],
+    answerPool: ["C", "A"],
   },
   {
     id: 16, world: 4, levelInWorld: 3,
-    title: "Level 3", description: "Add E — third bass space",
+    title: "Level 3", description: "Add E — A, C or E?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 4,
-    answerPool: ACEG,
+    answerPool: ["C", "E", "A"],
   },
   {
     id: 17, world: 4, levelInWorld: 4,
@@ -246,23 +246,23 @@ export const LEVELS: LevelDef[] = [
     id: 19, world: 5, levelInWorld: 1,
     title: "Level 1", description: "Just G — bass bottom line",
     questionCount: 5, passingAccuracy: 0.8, notesWorld: 5,
-    answerPool: ["F", "G", "A"],
+    answerPool: ["G"],
   },
   {
     id: 20, world: 5, levelInWorld: 2,
-    title: "Level 2", description: "Add B — second bass line",
+    title: "Level 2", description: "Add B — G or B?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 5,
-    answerPool: ["A", "B", "F", "G"],
+    answerPool: ["B", "G"],
   },
   {
     id: 21, world: 5, levelInWorld: 3,
-    title: "Level 3", description: "Add D — middle bass line",
+    title: "Level 3", description: "Add D — G, B or D?",
     questionCount: 6, passingAccuracy: 0.8, notesWorld: 5,
-    answerPool: ["A", "B", "D", "F", "G"],
+    answerPool: ["B", "D", "G"],
   },
   {
     id: 22, world: 5, levelInWorld: 4,
-    title: "Level 4", description: "Add F — GBDFA complete!",
+    title: "Level 4", description: "Add F — almost GBDFA!",
     questionCount: 8, passingAccuracy: 0.8, notesWorld: 5,
     answerPool: GBDFA,
   },

@@ -1,14 +1,15 @@
 "use client";
 // components/TimerBar.tsx — countdown bar + large visible seconds number
+// Bug fix: onExpire is called via ref so stale closure never fires twice
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 interface Props {
   durationSeconds: number;
   onExpire: () => void;
   running: boolean;
   resetKey: number;
-  showCountdown?: boolean; // show large number (Quick Fire mode)
+  showCountdown?: boolean;
 }
 
 export default function TimerBar({ durationSeconds, onExpire, running, resetKey, showCountdown }: Props) {
@@ -16,17 +17,26 @@ export default function TimerBar({ durationSeconds, onExpire, running, resetKey,
   const [secondsLeft, setSecondsLeft] = useState(durationSeconds);
   const startRef = useRef<number | null>(null);
   const frameRef = useRef<number>(0);
-  const expiredRef = useRef(false);
+  // Use a ref for the fired flag so it persists across re-renders without triggering effects
+  const firedRef = useRef(false);
+  // Keep onExpire in a ref so the rAF closure always calls the latest version
+  const onExpireRef = useRef(onExpire);
+  useEffect(() => { onExpireRef.current = onExpire; }, [onExpire]);
 
+  // Reset everything when resetKey changes (new question)
   useEffect(() => {
+    cancelAnimationFrame(frameRef.current);
     setWidth(100);
     setSecondsLeft(durationSeconds);
     startRef.current = null;
-    expiredRef.current = false;
+    firedRef.current = false;
   }, [resetKey, durationSeconds]);
 
   useEffect(() => {
-    if (!running) return;
+    if (!running) {
+      cancelAnimationFrame(frameRef.current);
+      return;
+    }
 
     const tick = (now: number) => {
       if (!startRef.current) startRef.current = now;
@@ -36,17 +46,19 @@ export default function TimerBar({ durationSeconds, onExpire, running, resetKey,
       setWidth(pct);
       setSecondsLeft(secs);
 
-      if (pct <= 0 && !expiredRef.current) {
-        expiredRef.current = true;
-        onExpire();
-        return;
+      if (pct <= 0) {
+        if (!firedRef.current) {
+          firedRef.current = true;
+          onExpireRef.current();
+        }
+        return; // stop the loop
       }
       frameRef.current = requestAnimationFrame(tick);
     };
 
     frameRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameRef.current);
-  }, [running, durationSeconds, onExpire, resetKey]);
+  }, [running, durationSeconds, resetKey]);
 
   const isUrgent = width <= 40;
   const barColor = width > 60 ? "bg-sage" : width > 30 ? "bg-gold" : "bg-coral";
